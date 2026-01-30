@@ -1,0 +1,80 @@
+{
+  "name": "private-rat",
+  "version": "2.0.0",
+  "description": "Private-RAT with Chat Apps Monitoring",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node index.js",
+    "build": "echo 'No build step required'",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "rat",
+    "remote-access",
+    "monitoring",
+    "chat-apps",
+    "whatsapp",
+    "telegram",
+    "messenger"
+  ],
+  "author": "Ryzen",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.4",
+    "ejs": "^3.1.9",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "express-async-handler": "^1.2.0",
+    "geoip-lite": "^1.4.7",
+    "lowdb": "^1.0.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.1",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21",
+    "axios": "^1.6.2",
+    "ws": "^8.14.2",
+    "node-cron": "^3.0.3",
+    "winston": "^3.11.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "eslint": "^8.55.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "^3.1.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "nodemonConfig": {
+    "ext": "js,json",
+    "ignore": [
+      "*.test.js",
+      "db/*",
+      "node_modules/*",
+      "*.log"
+    ],
+    "delay": "2",
+    "env": {
+      "NODE_ENV": "development"
+    }
+  }
+}

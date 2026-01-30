@@ -1,0 +1,25 @@
+{
+  "admin": {
+    "username": "admin",
+    "password": "21232f297a57a5a743894a0e4a801fc3",
+    "loginToken": "dc4d351e2210d39049e0201106183f64",
+    "logs": [],
+    "ipLog": [],
+    "settings": {
+      "maxClients": 1000,
+      "sessionTimeout": 3600000,
+      "enableLogging": true,
+      "enableChatMonitoring": true
+    }
+  },
+  "clients": [],
+  "system": {
+    "version": "2.0.0",
+    "lastUpdate": "2026-01-30T10:00:00.000Z",
+    "stats": {
+      "totalClients": 0,
+      "totalMessages": 0,
+      "uptime": 0
+    }
+  }
+}
