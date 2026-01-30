@@ -1,0 +1,142 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <div class="search-box" style="flex: 1; max-width: 400px;">
+        <i class="search icon"></i>
+        <input type="text" id="searchInput" class="form-input" placeholder="Search notifications...">
+      </div>
+      <div style="width: 200px;">
+        <select id="appFilter" class="form-input" onchange="filterData()">
+          <option value="">All Apps</option>
+          <% 
+            const apps = [...new Set(pageData.map(n => n.appName))].filter(Boolean).sort();
+            apps.forEach(app => { 
+          %>
+            <option value="<%= app %>"><%= app %></option>
+          <% }); %>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="refreshData()">
+        <i class="refresh icon"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="data-table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>App Name</th>
+          <th>Title</th>
+          <th>Content</th>
+          <th>Post Time</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <% if (pageData && pageData.length > 0) { %>
+          <% pageData.forEach(function(notif) { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-weight: 600;"><%= notif.appName || 'Unknown' %></span>
+                </div>
+              </td>
+              <td><%= notif.title || '-' %></td>
+              <td><%= notif.content || '-' %></td>
+              <td><%= notif.postTime ? new Date(notif.postTime).toLocaleString() : '-' %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="4" class="text-center" style="padding: 40px; color: #718096;">
+              <i class="bell outline icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+              No notifications available
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+  }
+
+  .search-box input {
+    padding-left: 45px;
+  }
+</style>
+
+<script>
+  function refreshData() {
+    fetch(`/manage/<%= deviceid %>/0xNO`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ action: 'get' }) // Assuming 'get' action triggers update
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('Request sent to update notifications');
+      setTimeout(() => location.reload(), 2000);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to request notifications update');
+    });
+  }
+
+  function filterData() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const appFilter = document.getElementById('appFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#dataTableBody tr');
+
+    rows.forEach(row => {
+      // Skip empty state row
+      if (row.querySelector('td').getAttribute('colspan')) return;
+
+      const appName = row.children[0].textContent.toLowerCase();
+      const title = row.children[1].textContent.toLowerCase();
+      const content = row.children[2].textContent.toLowerCase();
+      
+      const matchesSearch = appName.includes(searchInput) || 
+                          title.includes(searchInput) || 
+                          content.includes(searchInput);
+      const matchesApp = !appFilter || appName.includes(appFilter);
+
+      row.style.display = (matchesSearch && matchesApp) ? '' : 'none';
+    });
+  }
+
+  document.getElementById('searchInput')?.addEventListener('input', filterData);
+</script>

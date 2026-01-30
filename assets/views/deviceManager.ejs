@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Manager - <%= deviceid %> - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .device-manager-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .device-manager-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .device-content {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      min-height: 500px;
+    }
+
+    .device-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .device-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .device-header .device-id {
+      font-family: 'Courier New', monospace;
+      color: #667eea;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #f7fafc;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .back-button:hover {
+      background: #edf2f7;
+      border-color: #667eea;
+      color: #667eea;
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'devices' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <h1 class="page-title">Device Manager</h1>
+            <p class="page-subtitle">Manage and monitor device: <span class="device-id"><%= deviceid %></span></p>
+          </div>
+          <a href="/devices" class="back-button">
+            <i class="arrow left icon"></i> Back to Devices
+          </a>
+        </div>
+      </div>
+
+      <div class="device-manager-container">
+        <%- include('partials/deviceManagerMenu.ejs', { baseURL: baseURL, page: page }) %>
+
+        <div class="device-content">
+          <div class="device-header">
+            <h2>
+              <i class="<%= 
+                page === 'info' ? 'info circle' :
+                page === 'gps' ? 'map marker alternate' :
+                page === 'calls' ? 'phone' :
+                page === 'sms' ? 'comment alternate' :
+                page === 'contacts' ? 'address book' :
+                page === 'whatsapp' ? 'whatsapp' :
+                page === 'telegram' ? 'telegram' :
+                page === 'messenger' ? 'facebook messenger' :
+                page === 'notifications' ? 'bell outline' :
+                page === 'clipboard' ? 'clipboard' :
+                page === 'apps' ? 'android' :
+                page === 'permissions' ? 'lock' :
+                page === 'files' ? 'folder open' :
+                page === 'downloads' ? 'download' :
+                page === 'microphone' ? 'microphone' :
+                page === 'wifi' ? 'wifi' :
+                page === 'chatcontacts' ? 'users' :
+                'setting'
+              %> icon"></i>
+              <%= page.charAt(0).toUpperCase() + page.slice(1).replace(/([A-Z])/g, ' $1') %>
+            </h2>
+          </div>
+
+          <%- include(`deviceManagerPages/${page}.ejs`, { deviceid: deviceid, pageData: pageData || [], baseURL: baseURL }) %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>

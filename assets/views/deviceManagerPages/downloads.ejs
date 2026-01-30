@@ -1,0 +1,107 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <div class="search-box" style="flex: 1; max-width: 400px;">
+        <i class="search icon"></i>
+        <input type="text" id="searchInput" class="form-input" placeholder="Search downloads...">
+      </div>
+      <button class="btn btn-primary" onclick="refreshDownloads()">
+        <i class="refresh icon"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="data-table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Size</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <% if (pageData && pageData.length > 0) { %>
+          <% pageData.forEach(function(file) { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <i class="file alternate outline icon" style="font-size: 20px; color: #4299e1;"></i>
+                  <span style="font-weight: 600; color: #2d3748;"><%= file.originalName || file.name || 'Unknown' %></span>
+                </div>
+              </td>
+              <td><%= file.size ? (file.size / 1024).toFixed(2) + ' KB' : '-' %></td>
+              <td><%= file.time ? new Date(file.time).toLocaleString() : '-' %></td>
+              <td>
+                <a href="/client_downloads/<%= file.name || file.path %>" download="<%= file.originalName || file.name %>" class="btn btn-sm btn-success">
+                  <i class="download icon"></i> Download
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="4" class="text-center" style="padding: 40px; color: #718096;">
+              <i class="download icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+              No downloads available
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+  }
+
+  .search-box input {
+    padding-left: 45px;
+  }
+</style>
+
+<script>
+  function refreshDownloads() {
+    location.reload();
+  }
+
+  document.getElementById('searchInput')?.addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#dataTableBody tr');
+    rows.forEach(row => {
+      if (row.querySelector('td').getAttribute('colspan')) return;
+      const text = row.children[0].textContent.toLowerCase();
+      row.style.display = text.includes(searchValue) ? '' : 'none';
+    });
+  });
+</script>

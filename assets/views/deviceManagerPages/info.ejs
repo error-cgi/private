@@ -1,0 +1,126 @@
+<div class="info-container">
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-header">
+        <i class="mobile alternate icon"></i>
+        <h3>Device Information</h3>
+      </div>
+      <div class="info-card-body">
+        <% if (pageData && pageData.clientID) { %>
+          <div class="info-item">
+            <span class="info-label">Device ID</span>
+            <span class="info-value"><%= pageData.clientID %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status</span>
+            <span class="info-value">
+              <span class="badge <%= pageData.isOnline ? 'badge-success' : 'badge-error' %>">
+                <%= pageData.isOnline ? 'Online' : 'Offline' %>
+              </span>
+            </span>
+          </div>
+          <% if (pageData.device) { %>
+            <div class="info-item">
+              <span class="info-label">Model</span>
+              <span class="info-value"><%= pageData.device.model || 'Unknown' %></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Manufacturer</span>
+              <span class="info-value"><%= pageData.device.manufacture || 'Unknown' %></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Android Version</span>
+              <span class="info-value"><%= pageData.device.version || 'Unknown' %></span>
+            </div>
+          <% } %>
+          <div class="info-item">
+            <span class="info-label">First Seen</span>
+            <span class="info-value"><%= pageData.firstSeen ? new Date(pageData.firstSeen).toLocaleString() : 'Unknown' %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Last Seen</span>
+            <span class="info-value"><%= pageData.lastSeen ? new Date(pageData.lastSeen).toLocaleString() : 'Unknown' %></span>
+          </div>
+          <% if (pageData.clientIP) { %>
+            <div class="info-item">
+              <span class="info-label">IP Address</span>
+              <span class="info-value"><%= pageData.clientIP %></span>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="empty-icon"><i class="info circle icon"></i></div>
+            <div class="empty-title">No device information</div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+  }
+
+  .info-card {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .info-card-header i {
+    font-size: 24px;
+    color: #667eea;
+  }
+
+  .info-card-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+  }
+
+  .info-value {
+    font-size: 14px;
+    color: #2d3748;
+    text-align: right;
+    font-weight: 500;
+  }
+</style>

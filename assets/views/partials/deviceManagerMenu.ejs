@@ -1,0 +1,161 @@
+<div class="device-manager-menu">
+  <div class="menu-section">
+    <div class="menu-section-title">Device Info</div>
+    <a href="<%= baseURL %>/info" class="menu-item <%= page === 'info' ? 'active' : '' %>">
+      <i class="info circle icon"></i>
+      <span>Device Information</span>
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Location & Media</div>
+    <a href="<%= baseURL %>/gps" class="menu-item <%= page === 'gps' ? 'active' : '' %>">
+      <i class="map marker alternate icon"></i>
+      <span>GPS Location</span>
+    </a>
+    <a href="<%= baseURL %>/microphone" class="menu-item <%= page === 'microphone' ? 'active' : '' %>">
+      <i class="microphone icon"></i>
+      <span>Microphone</span>
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Communication</div>
+    <a href="<%= baseURL %>/contacts" class="menu-item <%= page === 'contacts' ? 'active' : '' %>">
+      <i class="address book icon"></i>
+      <span>Contacts</span>
+    </a>
+    <a href="<%= baseURL %>/calls" class="menu-item <%= page === 'calls' ? 'active' : '' %>">
+      <i class="phone icon"></i>
+      <span>Call Logs</span>
+    </a>
+    <a href="<%= baseURL %>/sms" class="menu-item <%= page === 'sms' ? 'active' : '' %>">
+      <i class="comment alternate icon"></i>
+      <span>SMS Manager</span>
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Chat Apps</div>
+    <a href="<%= baseURL %>/whatsapp" class="menu-item <%= page === 'whatsapp' ? 'active' : '' %>">
+      <i class="whatsapp icon"></i>
+      <span>WhatsApp</span>
+    </a>
+    <a href="<%= baseURL %>/telegram" class="menu-item <%= page === 'telegram' ? 'active' : '' %>">
+      <i class="telegram icon"></i>
+      <span>Telegram</span>
+    </a>
+    <a href="<%= baseURL %>/messenger" class="menu-item <%= page === 'messenger' ? 'active' : '' %>">
+      <i class="facebook messenger icon"></i>
+      <span>Messenger</span>
+    </a>
+    <a href="<%= baseURL %>/chatcontacts" class="menu-item <%= page === 'chatcontacts' ? 'active' : '' %>">
+      <i class="users icon"></i>
+      <span>Chat Contacts</span>
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">System</div>
+    <a href="<%= baseURL %>/notifications" class="menu-item <%= page === 'notifications' ? 'active' : '' %>">
+      <i class="bell outline icon"></i>
+      <span>Notifications</span>
+    </a>
+    <a href="<%= baseURL %>/clipboard" class="menu-item <%= page === 'clipboard' ? 'active' : '' %>">
+      <i class="clipboard icon"></i>
+      <span>Clipboard</span>
+    </a>
+    <a href="<%= baseURL %>/apps" class="menu-item <%= page === 'apps' ? 'active' : '' %>">
+      <i class="android icon"></i>
+      <span>Installed Apps</span>
+    </a>
+    <a href="<%= baseURL %>/permissions" class="menu-item <%= page === 'permissions' ? 'active' : '' %>">
+      <i class="lock icon"></i>
+      <span>Permissions</span>
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="menu-section-title">Files</div>
+    <a href="<%= baseURL %>/files" class="menu-item <%= page === 'files' ? 'active' : '' %>">
+      <i class="folder open icon"></i>
+      <span>File Explorer</span>
+    </a>
+    <a href="<%= baseURL %>/downloads" class="menu-item <%= page === 'downloads' ? 'active' : '' %>">
+      <i class="download icon"></i>
+      <span>Downloads</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .device-manager-menu {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: fit-content;
+    position: sticky;
+    top: 30px;
+  }
+
+  .device-manager-menu .menu-section {
+    margin-bottom: 24px;
+  }
+
+  .device-manager-menu .menu-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .device-manager-menu .menu-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #718096;
+    margin-bottom: 12px;
+    padding: 0 12px;
+  }
+
+  .device-manager-menu .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+  }
+
+  .device-manager-menu .menu-item:hover {
+    background: #f7fafc;
+    color: #667eea;
+    transform: translateX(4px);
+  }
+
+  .device-manager-menu .menu-item.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    color: #667eea;
+    border-left: 3px solid #667eea;
+    font-weight: 600;
+  }
+
+  .device-manager-menu .menu-item i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .device-manager-menu {
+      position: relative;
+      top: 0;
+      margin-bottom: 24px;
+    }
+  }
+</style>

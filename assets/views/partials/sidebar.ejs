@@ -1,0 +1,90 @@
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <i class="shield alternate icon"></i>
+      </div>
+      <div>
+        <div class="logo-text">PrivateRAT</div>
+        <div class="logo-subtitle">Control Center v2.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-menu">
+    <!-- Main Navigation -->
+    <div class="menu-section">
+      <div class="menu-section-title">Main</div>
+      <a href="/" class="menu-item <%= activePage === 'dashboard' ? 'active' : '' %>">
+        <i class="dashboard icon"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/devices" class="menu-item <%= activePage === 'devices' ? 'active' : '' %>">
+        <i class="mobile alternate icon"></i>
+        <span>Device Manager</span>
+      </a>
+      <a href="/logs" class="menu-item <%= activePage === 'logs' ? 'active' : '' %>">
+        <i class="file text outline icon"></i>
+        <span>System Logs</span>
+      </a>
+      <a href="/builder" class="menu-item <%= activePage === 'builder' ? 'active' : '' %>">
+        <i class="android icon"></i>
+        <span>APK Builder</span>
+      </a>
+    </div>
+    
+    <!-- Monitoring -->
+    <div class="menu-section">
+      <div class="menu-section-title">Monitoring</div>
+      <a href="/monitoring/calls" class="menu-item <%= activePage === 'calls' ? 'active' : '' %>">
+        <i class="phone icon"></i>
+        <span>Call Logs</span>
+      </a>
+      <a href="/monitoring/sms" class="menu-item <%= activePage === 'sms' ? 'active' : '' %>">
+        <i class="comment alternate icon"></i>
+        <span>SMS Messages</span>
+      </a>
+      <a href="/monitoring/notifications" class="menu-item <%= activePage === 'notifications' ? 'active' : '' %>">
+        <i class="bell outline icon"></i>
+        <span>Notifications</span>
+      </a>
+      <a href="/monitoring/chat" class="menu-item <%= activePage === 'chat' ? 'active' : '' %>">
+        <i class="comments icon"></i>
+        <span>Chat Apps</span>
+      </a>
+    </div>
+    
+    <!-- System -->
+    <div class="menu-section">
+      <div class="menu-section-title">System</div>
+      <a href="/settings" class="menu-item <%= activePage === 'settings' ? 'active' : '' %>">
+        <i class="cog icon"></i>
+        <span>Settings</span>
+      </a>
+      <a href="/backup" class="menu-item <%= activePage === 'backup' ? 'active' : '' %>">
+        <i class="database icon"></i>
+        <span>Backup & Restore</span>
+      </a>
+      <a href="/updates" class="menu-item <%= activePage === 'updates' ? 'active' : '' %>">
+        <i class="sync alternate icon"></i>
+        <span>Updates</span>
+      </a>
+    </div>
+    
+    <!-- User -->
+    <div class="menu-section">
+      <div class="menu-section-title">User</div>
+      <a href="/profile" class="menu-item <%= activePage === 'profile' ? 'active' : '' %>">
+        <i class="user circle icon"></i>
+        <span>Profile</span>
+      </a>
+      <a href="/changepass" class="menu-item <%= activePage === 'changepass' ? 'active' : '' %>">
+        <i class="lock icon"></i>
+        <span>Change Password</span>
+      </a>
+      <a href="/logout" class="menu-item">
+        <i class="sign-out alternate icon"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </div>
+</div>

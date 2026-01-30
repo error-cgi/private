@@ -1,0 +1,140 @@
+<div class="gps-container">
+  <div class="gps-controls">
+    <div class="control-card">
+      <h3><i class="map marker alternate icon"></i> GPS Controls</h3>
+      <div class="form-group">
+        <label class="form-label">Update Frequency (seconds)</label>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <input type="number" id="gpsFrequency" class="form-input" value="30" min="30" style="flex: 1;">
+          <button class="btn btn-primary" onclick="startGPSPoll()">
+            <i class="play icon"></i> Start Polling
+          </button>
+          <button class="btn btn-secondary" onclick="stopGPSPoll()">
+            <i class="stop icon"></i> Stop
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gps-map-container">
+    <div class="map-card">
+      <h3><i class="map icon"></i> Location Map</h3>
+      <div id="gpsMap" style="width: 100%; height: 400px; border-radius: 12px; background: #f7fafc; display: flex; align-items: center; justify-content: center; color: #718096;">
+        <div style="text-align: center;">
+          <i class="map marker alternate icon" style="font-size: 64px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+          <div>Map will be displayed here</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gps-history">
+    <div class="history-card">
+      <h3><i class="history icon"></i> GPS History</h3>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Accuracy</th>
+              <th>Speed</th>
+            </tr>
+          </thead>
+          <tbody id="gpsHistoryTable">
+            <% if (pageData && pageData.length > 0) { %>
+              <% pageData.slice(0, 20).forEach(function(location) { %>
+                <tr>
+                  <td><%= location.time ? new Date(location.time).toLocaleString() : '-' %></td>
+                  <td><%= location.latitude || '-' %></td>
+                  <td><%= location.longitude || '-' %></td>
+                  <td><%= location.accuracy ? location.accuracy + 'm' : '-' %></td>
+                  <td><%= location.speed ? location.speed + ' m/s' : '-' %></td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="text-center" style="padding: 40px; color: #718096;">
+                  <i class="map marker alternate icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+                  No GPS data available
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .gps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .gps-controls, .gps-map-container, .gps-history {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .gps-controls h3, .gps-map-container h3, .gps-history h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .gps-controls h3 i, .gps-map-container h3 i, .gps-history h3 i {
+    color: #667eea;
+    font-size: 20px;
+  }
+</style>
+
+<script>
+  function startGPSPoll() {
+    const frequency = document.getElementById('gpsFrequency').value;
+    if (frequency < 30) {
+      alert('Minimum polling frequency is 30 seconds');
+      return;
+    }
+    
+    fetch(`/manage/<%= deviceid %>/GPSPOLL/${frequency}`, {
+      method: 'POST',
+      credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('GPS polling started successfully');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to start GPS polling');
+    });
+  }
+
+  function stopGPSPoll() {
+    fetch(`/manage/<%= deviceid %>/0xLO`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ action: 'stop' })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('GPS polling stop request sent');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to stop GPS polling');
+    });
+  }
+</script>

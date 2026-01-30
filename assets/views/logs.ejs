@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Logs - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .logs-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .logs-list {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      padding: 16px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      transition: background 0.2s;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-entry:hover {
+      background: #f7fafc;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .log-level {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .log-level.INFO {
+      background: rgba(66, 153, 225, 0.1);
+      color: #4299e1;
+    }
+
+    .log-level.SUCCESS {
+      background: rgba(72, 187, 120, 0.1);
+      color: #48bb78;
+    }
+
+    .log-level.ALERT {
+      background: rgba(237, 137, 54, 0.1);
+      color: #ed8936;
+    }
+
+    .log-level.ERROR {
+      background: rgba(229, 62, 62, 0.1);
+      color: #e53e3e;
+    }
+
+    .log-time {
+      font-size: 13px;
+      color: #718096;
+      font-family: 'Courier New', monospace;
+    }
+
+    .log-message {
+      font-size: 14px;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'logs' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">System Logs</h1>
+        <p class="page-subtitle">Monitor system activities and events in real-time</p>
+      </div>
+
+      <div class="logs-container">
+        <div class="filter-section">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label class="form-label">Log Level</label>
+              <select id="logLevel" class="form-select">
+                <option value="">All Levels</option>
+                <option value="INFO">Info</option>
+                <option value="SUCCESS">Success</option>
+                <option value="ALERT">Alert</option>
+                <option value="ERROR">Error</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Search</label>
+              <input type="text" id="searchLogs" class="form-input" placeholder="Search logs...">
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+              <button class="btn btn-primary" onclick="refreshLogs()" style="width: 100%;">
+                <i class="refresh icon"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="logs-list" id="logsList">
+          <div class="empty-state">
+            <div class="empty-icon"><i class="spinner loading icon"></i></div>
+            <div class="empty-title">Loading logs...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    // Get logs from server-side rendered data
+    const allLogs = <%- JSON.stringify(logs || []) %>;
+
+    function loadLogs() {
+      const level = document.getElementById('logLevel').value;
+      const search = document.getElementById('searchLogs').value.toLowerCase();
+      displayLogs(allLogs, level, search);
+    }
+
+    function displayLogs(logs, levelFilter, searchFilter) {
+      const logsList = document.getElementById('logsList');
+      
+      if (!logs || logs.length === 0) {
+        logsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon"><i class="file text outline icon"></i></div>
+            <div class="empty-title">No logs found</div>
+            <div class="empty-desc">Try adjusting your filters</div>
+          </div>
+        `;
+        return;
+      }
+
+      let filteredLogs = logs;
+      
+      if (levelFilter) {
+        filteredLogs = filteredLogs.filter(log => log.type === levelFilter);
+      }
+      
+      if (searchFilter) {
+        filteredLogs = filteredLogs.filter(log => 
+          log.message.toLowerCase().includes(searchFilter)
+        );
+      }
+
+      if (filteredLogs.length === 0) {
+        logsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon"><i class="search icon"></i></div>
+            <div class="empty-title">No logs match your filters</div>
+          </div>
+        `;
+        return;
+      }
+
+      logsList.innerHTML = filteredLogs.map(log => {
+        const time = new Date(log.time).toLocaleString();
+        return `
+          <div class="log-entry fade-in">
+            <div class="log-header">
+              <span class="log-level ${log.type}">${log.type}</span>
+              <span class="log-time">${time}</span>
+            </div>
+            <div class="log-message">${log.message}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function refreshLogs() {
+      loadLogs();
+    }
+
+    document.getElementById('logLevel').addEventListener('change', loadLogs);
+    document.getElementById('searchLogs').addEventListener('input', function() {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(loadLogs, 500);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLogs();
+      setInterval(loadLogs, 30000);
+    });
+  </script>
+</body>
+</html>

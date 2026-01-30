@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Updates - PrivateRAT v2.0</title>
+  <link rel="stylesheet" href="/css/semantic.min.css">
+  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .update-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .version-card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid #667eea;
+    }
+
+    .version-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .version-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .version-date {
+      font-size: 14px;
+      color: #718096;
+    }
+
+    .changelog-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .changelog-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .changelog-list li:last-child {
+      border-bottom: none;
+    }
+
+    .changelog-list li i {
+      color: #48bb78;
+      margin-top: 4px;
+    }
+
+    .check-update-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .current-version {
+      font-size: 18px;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    .version-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+  </style>
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/semantic.min.js"></script>
+</head>
+<body>
+  <button class="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bars icon"></i>
+  </button>
+
+  <div class="app-container">
+    <%- include('partials/sidebar.ejs', { activePage: 'updates' }) %>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Updates</h1>
+        <p class="page-subtitle">Check for updates and view changelog</p>
+      </div>
+
+      <div class="update-container">
+        <!-- Check for Updates -->
+        <div class="check-update-section">
+          <div class="version-badge">Current Version: v2.0.0</div>
+          <div class="current-version">You are running the latest version</div>
+          <button class="btn" onclick="checkForUpdates()" style="background: white; color: #667eea;">
+            <i class="sync icon"></i> Check for Updates
+          </button>
+        </div>
+
+        <!-- Version History -->
+        <div class="version-card">
+          <div class="version-header">
+            <div>
+              <div class="version-number">v2.0.0</div>
+              <div class="version-date">Released: 2024</div>
+            </div>
+            <span class="badge badge-success">Latest</span>
+          </div>
+          <ul class="changelog-list">
+            <li>
+              <i class="check circle icon"></i>
+              <div>
+                <strong>Complete UI Redesign</strong>
+                <div style="color: #718096; font-size: 14px; margin-top: 4px;">
+                  Modern, professional design with consistent styling across all pages
+                </div>
+              </div>
+            </li>
+            <li>
+              <i class="check circle icon"></i>
+              <div>
+                <strong>Chat Apps Monitoring</strong>
+                <div style="color: #718096; font-size: 14px; margin-top: 4px;">
+                  Added WhatsApp, Telegram, and Messenger monitoring capabilities
+                </div>
+              </div>
+            </li>
+            <li>
+              <i class="check circle icon"></i>
+              <div>
+                <strong>Enhanced Security</strong>
+                <div style="color: #718096; font-size: 14px; margin-top: 4px;">
+                  Improved authentication, rate limiting, and security headers
+                </div>
+              </div>
+            </li>
+            <li>
+              <i class="check circle icon"></i>
+              <div>
+                <strong>Performance Improvements</strong>
+                <div style="color: #718096; font-size: 14px; margin-top: 4px;">
+                  Optimized database operations and real-time updates
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="version-card">
+          <div class="version-header">
+            <div>
+              <div class="version-number">v1.0.0</div>
+              <div class="version-date">Released: 2023</div>
+            </div>
+          </div>
+          <ul class="changelog-list">
+            <li>
+              <i class="check circle icon"></i>
+              <div>
+                <strong>Initial Release</strong>
+                <div style="color: #718096; font-size: 14px; margin-top: 4px;">
+                  First stable release with core monitoring features
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileToggle = document.querySelector('.mobile-toggle');
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileToggle.contains(event.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    function checkForUpdates() {
+      const btn = event.target.closest('button');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="spinner loading icon"></i> Checking...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('You are already running the latest version (v2.0.0)');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
